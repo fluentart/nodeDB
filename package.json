@@ -1,0 +1,25 @@
+{
+  "name": "nodedbwat",
+  "version": "0.0.2",
+  "description": "purely minimalist node only database inspired by the mongo interface. warning not production tested.",
+  "main": "nodedbwat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fluentart/nodeDB.git"
+  },
+  "keywords": [
+    "db"
+  ],
+  "author": "Rouan van der Ende <rouan@8bo.org> (https://rouan.io/)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fluentart/nodeDB/issues"
+  },
+  "homepage": "https://github.com/fluentart/nodeDB#readme",
+  "dependencies": {
+    "@types/node": "^10.5.1"
+  }
+}

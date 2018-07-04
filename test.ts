@@ -1,4 +1,4 @@
-import * as nodeDB from './nodeDB'
+import * as nodeDB from './nodedbwat'
 
 var db : any = nodeDB.connect("", ["mydb", "anotherdb"]);
 
