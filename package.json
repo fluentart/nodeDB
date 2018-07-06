@@ -1,6 +1,6 @@
 {
   "name": "nodedbwat",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "purely minimalist node only database inspired by the mongo interface. warning not production tested.",
   "main": "nodedbwat.js",
   "scripts": {
