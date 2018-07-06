@@ -12,8 +12,8 @@ var __extends = (this && this.__extends) || (function () {
 exports.__esModule = true;
 var fs = require("fs");
 var events_1 = require("events");
-//const EventEmitter = require('events');
 var path = require("path");
+var steno = require('steno');
 var Collection = /** @class */ (function (_super) {
     __extends(Collection, _super);
     function Collection(collectionName, options) {
@@ -23,12 +23,13 @@ var Collection = /** @class */ (function (_super) {
         //console.log("constructing collection: "+collectionName)
         _this.name = collectionName;
         _this.data = [];
-        if (options.dbPath) {
-            _this.filePath = path.join(options.dbPath, 'db_' + _this.name + '.json');
+        _this.filePath = "" + path.join(__dirname, 'db_' + _this.name + '.json'); //default
+        if (options) {
+            if (options.dbPath) {
+                _this.filePath = "" + path.join(options.dbPath, 'db_' + _this.name + '.json');
+            }
         }
-        else {
-            _this.filePath = path.join(__dirname, 'db_' + _this.name + '.json');
-        }
+        console.log("this.filePath: " + _this.filePath);
         console.log(_this.filePath);
         var fileExists = fs.existsSync(_this.filePath);
         if (fileExists) {
@@ -112,8 +113,8 @@ var Collection = /** @class */ (function (_super) {
     };
     Collection.prototype.save = function (cb) {
         var _this = this;
-        fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), function (err) {
-            console.log(_this.filePath + " saved.");
+        steno.writeFile("" + this.filePath, JSON.stringify(this.data), function (err) {
+            console.log("" + _this.filePath + " saved.");
             if (cb) {
                 cb(err);
             }

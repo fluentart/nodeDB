@@ -1,6 +1,6 @@
 {
   "name": "nodedbwat",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "purely minimalist node only database inspired by the mongo interface. warning not production tested.",
   "main": "nodedbwat.js",
   "scripts": {
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/fluentart/nodeDB#readme",
   "dependencies": {
-    "@types/node": "^10.5.2"
+    "@types/node": "^10.5.2",
+    "steno": "^0.4.4"
   }
 }

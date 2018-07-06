@@ -1,6 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var nodeDB = require("./nodedbwat");
+console.log("running tests:");
 var db = nodeDB.connect("", ["mydb", "anotherdb"]);
 db.mydb.on("insert", function (entry) {
     console.log("insert event:");

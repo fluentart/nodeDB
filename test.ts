@@ -1,5 +1,7 @@
 import * as nodeDB from './nodedbwat'
 
+console.log("running tests:")
+
 var db : any = nodeDB.connect("", ["mydb", "anotherdb"]);
 
 db.mydb.on("insert", (entry:any) => {

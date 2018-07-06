@@ -1,8 +1,10 @@
 import * as fs from 'fs'
 import { EventEmitter } from 'events';
-//const EventEmitter = require('events');
-
 import * as path from 'path'
+
+const steno = require('steno')
+
+
  
 class Collection extends EventEmitter {
   name: string;
@@ -17,13 +19,14 @@ class Collection extends EventEmitter {
     //console.log("constructing collection: "+collectionName)
     this.name = collectionName;
     this.data = [];
+    this.filePath = ""+path.join(__dirname, 'db_'+this.name+'.json'); //default
     
-    if (options.dbPath) {
-      this.filePath = path.join(options.dbPath, 'db_'+this.name+'.json')
-    } else {
-      this.filePath = path.join(__dirname, 'db_'+this.name+'.json')
+    if (options) {
+      if (options.dbPath) {
+        this.filePath = ""+path.join(options.dbPath, 'db_'+this.name+'.json')
+      }
     }
-     
+    console.log("this.filePath: "+this.filePath)     
     console.log(this.filePath);
 
     var fileExists = fs.existsSync(this.filePath);
@@ -112,8 +115,8 @@ class Collection extends EventEmitter {
   }
 
   save(cb?:any) {
-    fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), (err) => {
-      console.log(this.filePath + " saved.")
+    steno.writeFile(""+this.filePath, JSON.stringify(this.data), (err) => {
+      console.log(""+this.filePath + " saved.")
       if (cb) {cb(err);}
     });
   }
