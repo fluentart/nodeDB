@@ -19,11 +19,11 @@ class Collection extends EventEmitter {
     //console.log("constructing collection: "+collectionName)
     this.name = collectionName;
     this.data = [];
-    this.filePath = ""+path.join(__dirname, 'db_'+this.name+'.json'); //default
+    this.filePath = path.join(__dirname, 'db_'+this.name+'.json'); //default
     
     if (options) {
       if (options.dbPath) {
-        this.filePath = ""+path.join(options.dbPath, 'db_'+this.name+'.json')
+        this.filePath = path.join(options.dbPath, 'db_'+this.name+'.json')
       }
     }
     console.log("this.filePath: "+this.filePath)     
@@ -115,8 +115,8 @@ class Collection extends EventEmitter {
   }
 
   save(cb?:any) {
-    steno.writeFile(""+this.filePath, JSON.stringify(this.data), (err) => {
-      console.log(""+this.filePath + " saved.")
+    steno.writeFile(this.filePath, JSON.stringify(this.data), (err) => {
+      console.log(this.filePath + " saved.")
       if (cb) {cb(err);}
     });
   }

@@ -23,10 +23,10 @@ var Collection = /** @class */ (function (_super) {
         //console.log("constructing collection: "+collectionName)
         _this.name = collectionName;
         _this.data = [];
-        _this.filePath = "" + path.join(__dirname, 'db_' + _this.name + '.json'); //default
+        _this.filePath = path.join(__dirname, 'db_' + _this.name + '.json'); //default
         if (options) {
             if (options.dbPath) {
-                _this.filePath = "" + path.join(options.dbPath, 'db_' + _this.name + '.json');
+                _this.filePath = path.join(options.dbPath, 'db_' + _this.name + '.json');
             }
         }
         console.log("this.filePath: " + _this.filePath);
@@ -113,8 +113,8 @@ var Collection = /** @class */ (function (_super) {
     };
     Collection.prototype.save = function (cb) {
         var _this = this;
-        steno.writeFile("" + this.filePath, JSON.stringify(this.data), function (err) {
-            console.log("" + _this.filePath + " saved.");
+        steno.writeFile(this.filePath, JSON.stringify(this.data), function (err) {
+            console.log(_this.filePath + " saved.");
             if (cb) {
                 cb(err);
             }
