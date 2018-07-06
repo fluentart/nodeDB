@@ -1,6 +1,13 @@
 # node db wat
 purely minimalist node only database inspired by the mongo interface. warning not production tested.
 
+# goals
+
+- small efficient codebase
+- high throughput atomic writes to disc/network (only write new data to disc)
+- no write corruption on master data even during unexpected errors/faults.
+- optional automatic passthrough to replicate or loadbalance
+
 # install
 
 ```
@@ -47,6 +54,22 @@ tsc *.ts --lib 'ES2015' -w
 ```
 
 # reference
+```javascript
+// CONNECT
+var nodeDBwat = require('nodedbwat');
+var db = nodeDBwat.connect("", ["brands", "models", "stats"], {dbPath:__dirname})
+
+/*
+connect(peerIps[], collections[], options?)
+
+options = {
+  dbPath: "./db" ,          // set the folder relative of abolute
+                            // use __dirname to get the current path
+}
+*/
+
+```
+----------------------------------
 
 ```javascript
 // INSERT DATA
