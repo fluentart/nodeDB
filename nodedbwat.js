@@ -13,29 +13,36 @@ exports.__esModule = true;
 var fs = require("fs");
 var events_1 = require("events");
 //const EventEmitter = require('events');
+var path = require("path");
 var Collection = /** @class */ (function (_super) {
     __extends(Collection, _super);
-    function Collection(collectionName) {
+    function Collection(collectionName, options) {
         var _this = _super.call(this) || this;
         _this.data = [];
         _this.ready = false;
         //console.log("constructing collection: "+collectionName)
         _this.name = collectionName;
         _this.data = [];
-        var filePath = './db_' + _this.name + '.json';
-        var fileExists = fs.existsSync(filePath);
+        if (options.dbPath) {
+            _this.filePath = path.join(options.dbPath, 'db_' + _this.name + '.json');
+        }
+        else {
+            _this.filePath = path.join(__dirname, 'db_' + _this.name + '.json');
+        }
+        console.log(_this.filePath);
+        var fileExists = fs.existsSync(_this.filePath);
         if (fileExists) {
-            var fileData = fs.readFileSync(filePath);
+            var fileData = fs.readFileSync(_this.filePath);
             _this.data = JSON.parse(fileData.toString());
         }
         else {
             _this.data = [];
         }
-        //AUTOSAVE
-        setInterval(function () {
-            _this.save();
-        }, 30000);
         return _this;
+        //AUTOSAVE
+        // setInterval(() => {
+        //   this.save();
+        // },30000);
     }
     Collection.prototype.insert = function (dataToInsert) {
         var overlay = {
@@ -105,8 +112,8 @@ var Collection = /** @class */ (function (_super) {
     };
     Collection.prototype.save = function (cb) {
         var _this = this;
-        fs.writeFile('./db_' + this.name + '.json', JSON.stringify(this.data, null, 2), function (err) {
-            console.log('./db_' + _this.name + ".json saved.");
+        fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), function (err) {
+            console.log(_this.filePath + " saved.");
             if (cb) {
                 cb(err);
             }
@@ -124,11 +131,11 @@ var Collection = /** @class */ (function (_super) {
     };
     return Collection;
 }(events_1.EventEmitter));
-function connect(connectionString, collectionList) {
+function connect(connectionString, collectionList, options) {
     var db = {};
     for (var _i = 0, collectionList_1 = collectionList; _i < collectionList_1.length; _i++) {
         var collection = collectionList_1[_i];
-        db[collection] = new Collection(collection);
+        db[collection] = new Collection(collection, options);
     }
     return db;
 }

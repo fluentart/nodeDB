@@ -1,33 +1,43 @@
 import * as fs from 'fs'
 import { EventEmitter } from 'events';
 //const EventEmitter = require('events');
+
+import * as path from 'path'
  
 class Collection extends EventEmitter {
   name: string;
   data: any = [];
+  filePath: string;
+
   public ready: boolean = false;
 
-  constructor(collectionName:string) 
+  constructor(collectionName:string, options?:any) 
   {
     super();
     //console.log("constructing collection: "+collectionName)
     this.name = collectionName;
     this.data = [];
+    
+    if (options.dbPath) {
+      this.filePath = path.join(options.dbPath, 'db_'+this.name+'.json')
+    } else {
+      this.filePath = path.join(__dirname, 'db_'+this.name+'.json')
+    }
+     
+    console.log(this.filePath);
 
-    var filePath = './db_'+this.name+'.json'
-
-    var fileExists = fs.existsSync(filePath);
+    var fileExists = fs.existsSync(this.filePath);
     if (fileExists) {
-      var fileData = fs.readFileSync(filePath);
+      var fileData = fs.readFileSync(this.filePath);
       this.data = JSON.parse(fileData.toString());
     } else {
       this.data = [];
     }
     
     //AUTOSAVE
-    setInterval(() => {
-      this.save();
-    },30000);
+    // setInterval(() => {
+    //   this.save();
+    // },30000);
   }
 
   insert(dataToInsert:any) {
@@ -102,8 +112,8 @@ class Collection extends EventEmitter {
   }
 
   save(cb?:any) {
-    fs.writeFile('./db_'+this.name+'.json', JSON.stringify(this.data, null, 2), (err) => {
-      console.log('./db_'+this.name+".json saved.")
+    fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), (err) => {
+      console.log(this.filePath + " saved.")
       if (cb) {cb(err);}
     });
   }
@@ -119,10 +129,10 @@ class Collection extends EventEmitter {
 }
 
 
-export function connect(connectionString:any, collectionList:any) {
+export function connect(connectionString:any, collectionList:any, options?:any) {
   var db : any = {};
   for (var collection of collectionList) {
-    db[collection] = <Collection> new Collection(collection)
+    db[collection] = <Collection> new Collection(collection, options)
   }
   return db
 }
