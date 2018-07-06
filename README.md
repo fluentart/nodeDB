@@ -73,7 +73,7 @@ options = {
 
 ```javascript
 // INSERT DATA
-var somedata = { foo : "bar", peep : "poop", a : [1,2,3] }
+var somedata = { foo : "bar", beep : "boop", a : [1,2,3] }
 
 db.mydb.insert(somedata)
 ```
@@ -81,7 +81,7 @@ db.mydb.insert(somedata)
 
 ```javascript
 // FIND DATA BY FILTERING
-db.mydb.find({peep:"poop"}, (err, result) => { 
+db.mydb.find({peep:"boop"}, (err, result) => { 
   console.log(result); 
 })
 ```
@@ -90,7 +90,7 @@ db.mydb.find({peep:"poop"}, (err, result) => {
 
 ```javascript
 // FIND AND UPDATE 
-db.mydb.update({peep:"poop"}, {bar:"foo"} , (err, result) => { 
+db.mydb.update({beep:"boop"}, {bar:"foo"} , (err, result) => { 
   console.log(result); 
 })
 ```
