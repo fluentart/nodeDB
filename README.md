@@ -1,5 +1,5 @@
 # node db wat
-purely minimalist node only database inspired by the mongo interface. warning not production tested.
+mongo-like interface to rethinkdb
 
 # goals
 
@@ -10,9 +10,13 @@ purely minimalist node only database inspired by the mongo interface. warning no
 
 # install
 
+install https://rethinkdb.com/
+
 ```
 npm install nodedbwat
 ```
+
+check test.js
 
 # todo
 

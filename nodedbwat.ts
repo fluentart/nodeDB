@@ -1,148 +1,121 @@
-import * as fs from 'fs'
+var r = require('rethinkdb');
+var connection = null
+
 import { EventEmitter } from 'events';
-import * as path from 'path'
 
-const steno = require('steno')
-
-
- 
-class Collection extends EventEmitter {
-  name: string;
+class Table extends EventEmitter {
+  dbName :string;
+  tableName: string;
   data: any = [];
   filePath: string;
 
   public ready: boolean = false;
 
-  constructor(collectionName:string, options?:any) 
-  {
+  constructor(dbName:string, tableName:string) {
     super();
-    //console.log("constructing collection: "+collectionName)
-    this.name = collectionName;
-    this.data = [];
-    this.filePath = path.join(__dirname, 'db_'+this.name+'.json'); //default
-    
-    if (options) {
-      if (options.dbPath) {
-        this.filePath = path.join(options.dbPath, 'db_'+this.name+'.json')
-      }
-    }
-    console.log("this.filePath: "+this.filePath)     
-    console.log(this.filePath);
-
-    var fileExists = fs.existsSync(this.filePath);
-    if (fileExists) {
-      var fileData = fs.readFileSync(this.filePath);
-      this.data = JSON.parse(fileData.toString());
-    } else {
-      this.data = [];
-    }
-    
-    //AUTOSAVE
-    // setInterval(() => {
-    //   this.save();
-    // },30000);
+    this.dbName = dbName;
+    this.tableName = tableName;
   }
 
-  insert(dataToInsert:any) {
-    var overlay = {
-      _id : makeid(64),
-      _time : new Date().toISOString(),
-    }
-    
-    var newdata = Object.assign(overlay, dataToInsert);
-    this.data.push(newdata);
-    this.emit("insert", newdata);
-    
+  insert(dataToInsert: any, cb:any) {
+    //log("insert")
+    //log(dataToInsert);
+    //log(this.dbName);
+    r.db(this.dbName).table(this.tableName).insert(dataToInsert).run(connection, cb)
   }
 
-  find(filter: any, cb:any) {
+  find(filter: any, cb: any) {
     var filteredArray = [];
 
+    r.db(this.dbName).table(this.tableName).filter(filter).run(connection, function(err, cursor) {
+      if (err) throw err;
+      cursor.toArray(function(err, result) {
+        cb(undefined, result);
+      });
+    })
 
-    for (var dbEntry in this.data) 
-    {
-      var match = compare(this.data[dbEntry], filter);
-      if (match == 0) {}
-      if (match == 1) { filteredArray.push(this.data[dbEntry]);}
-
-      if ( parseInt(dbEntry) == this.data.length - 1) {
-        cb(undefined, filteredArray);
-      }
-
-    }
-
-    //console.log(this.data.length)
-    
   }
 
-  update(filter:any, newDbEntry: any, cb:any) {
-    console.log("============")
-    console.log(newDbEntry);
-    console.log("============")
+  sample(filter, number, cb:any) {
+    r.db(this.dbName).table(this.tableName).filter(filter).sample(number).run(connection, function(err, cursor) {
+      if (err) throw err;
+      cursor.toArray(function(err, result) {
+        cb(undefined, result);
+      });
+    })
+
+  }
 
 
-    var result = {
-      matched:0,
-      updated:0
-    }
-    
-    if (filter == undefined) { console.log("filter set to undefined"); cb(); return; }
-    if (newDbEntry == undefined) { console.log("newDbEntry set to undefined"); cb(); return;  }
+  update(filter: any, newDbEntry: any, cb: any) {
+  }
 
-    try {
-        for (var dbEntry in this.data) 
-        {
-          var match = compare(this.data[dbEntry], filter);
-          if (match == 0) {}
-          if (match == 1) { 
-            //filteredArray.push(this.data[dbEntry]);
-            result.matched++;
+  test() {
+    console.log("testing..")
+  }
+
+}
+
+export function log(a) { console.log(a); console.log('\n'); }
+
+var connection: any;
+var tables: any;
+
+export function NodeDB (connectionString: any, cb:any) {
+    r.connect(connectionString, (err, conn) => {
+      if (err) throw err;
+      connection = conn;
+
+      r.dbCreate(connectionString.dbName).run(connection, (err, result) => {
+        console.log("db created..")
+        //console.log(result);
+
+        console.log("tables:")
+        
+        var count = connectionString.tables.length;
+        console.log(count);
+
+        for (var table of connectionString.tables) {
+            console.log(table);
+
+            r.db(connectionString.dbName).tableCreate(table).run(connection, (error, madeTable) => {
+              count--;
+              console.log("----")
+              if (count == 0) {
+                console.log("SUCCESS")       
+                
+                var db = [];
+
+                var countC = connectionString.tables.length;
+                for (var table of connectionString.tables) {
+                  db[table] = new Table(connectionString.dbName, table);
+                } //for
+                cb(undefined, db);
+
+              } //if
+            }) //r.db
+
+
+
+            // db[table] = new Table(connectionString.dbName, table, (err, result) => {
+            //   
+            //   if (count == 0) {
+            //     console.log("SUCCESS")
+            //     cb();
+            //     return db;              
+            //   }
+            // });
             
-            newDbEntry._id = makeid(64),
-            newDbEntry._time = new Date().toISOString()
-            result.updated++;
-            this.data[dbEntry] = newDbEntry;
-            console.log("entry updated.")
-            //end update
+            
           }
+        })
 
-          if ( parseInt(dbEntry) == this.data.length - 1) {
-            cb(undefined, result);
-          }
+      })
 
-        }
-    } catch (err) { console.log("ERROR IN db .update()"); console.log(err); cb(err, undefined); }
-  }
-
-  save(cb?:any) {
-    steno.writeFile(this.filePath, JSON.stringify(this.data), (err) => {
-      console.log(this.filePath + " saved.")
-      if (cb) {cb(err);}
-    });
-  }
-
-  wait(cb:any) {
-    var done = 0;
-    while (done == 0) {
-      //waiiit..
-      if (this.ready == true) { done = 1; cb() }  
     }
-    
-  }
-}
 
 
-export function connect(connectionString:any, collectionList:any, options?:any) {
-  var db : any = {};
-  for (var collection of collectionList) {
-    db[collection] = <Collection> new Collection(collection, options)
-  }
-  return db
-}
-
-
-
-function makeid(length:number) {
+export function makeid(length:number) {
   var text = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -151,16 +124,6 @@ function makeid(length:number) {
 
   return text;
 }
-
-//console.log(makeid(64));
-
-
-function errorHandler(err:Error) {
-  console.log("=== ERROR!===");
-  console.log(err);
-  console.log(" -- end of error --")
-}
-
 
 export function compare(dbObject:any, filter:any) {
   var filterKeys = countObjectProperties(filter);
@@ -178,9 +141,20 @@ export function compare(dbObject:any, filter:any) {
   if (countMatch == filterKeys) {
     return 1;
   } else { return 0; }
-
-  
 }
+
+export function getFirstKeyValue(inObj:any) {
+  if (countObjectProperties(inObj) > 0) {
+    for (var objKey in inObj) {
+      if (inObj.hasOwnProperty(objKey)) {
+        return {key:objKey, value:inObj[objKey]}
+      }
+    }
+  } else {
+    console.log("inObj has zero properties")
+  }
+}
+
 
 export function countObjectProperties(objectToCount:any) {
   var count = 0;
@@ -188,4 +162,17 @@ export function countObjectProperties(objectToCount:any) {
     count++;
   }
   return count;
+}
+
+// https://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value-in-javascript
+export function dynamicSort(property) {
+  var sortOrder = 1;
+  if(property[0] === "-") {
+      sortOrder = -1;
+      property = property.substr(1);
+  }
+  return function (a,b) {
+      var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+      return result * sortOrder;
+  }
 }

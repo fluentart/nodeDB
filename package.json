@@ -1,7 +1,7 @@
 {
   "name": "nodedbwat",
-  "version": "0.0.6",
-  "description": "purely minimalist node only database inspired by the mongo interface. warning not production tested.",
+  "version": "0.0.7",
+  "description": "mongo-like interface to rethinkdb",
   "main": "nodedbwat.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,6 +21,6 @@
   "homepage": "https://github.com/fluentart/nodeDB#readme",
   "dependencies": {
     "@types/node": "^10.5.2",
-    "steno": "^0.4.4"
+    "rethinkdb": "^2.3.3"
   }
 }

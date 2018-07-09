@@ -1,14 +1,18 @@
 "use strict";
 exports.__esModule = true;
-var nodeDB = require("./nodedbwat");
+var nodedbwat_1 = require("./nodedbwat");
 console.log("running tests:");
-var db = nodeDB.connect("", ["mydb", "anotherdb"]);
-db.mydb.on("insert", function (entry) {
-    console.log("insert event:");
-    console.log(entry);
-    db.mydb.save();
-    db.mydb.find({ car: "BAKKIE" }, function (err, results) {
-        console.log(results);
+nodedbwat_1.NodeDB({ dbName: "test", host: 'localhost', port: 28015, tables: ["yourdata", "moredata"] }, dbReady);
+function dbReady(err, db) {
+    console.log("db ready.");
+    var count = 0;
+    var limit = 10000;
+    var data = [];
+    for (var a = 0; a <= limit; a++) {
+        data.push({ foo: Math.random(), bar: "asdf" });
+    }
+    db.brands.insert(data, function (err, res) {
+        console.log(err);
+        console.log(res.inserted);
     });
-});
-db.mydb.insert({ name: "KOOS", age: Math.round(Math.random() * 120), car: "BAKKIE" });
+}

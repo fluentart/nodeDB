@@ -1,17 +1,23 @@
-import * as nodeDB from './nodedbwat'
+import { NodeDB } from './nodedbwat'
 
 console.log("running tests:")
 
-var db : any = nodeDB.connect("", ["mydb", "anotherdb"]);
+NodeDB({dbName: "test", host: 'localhost', port: 28015, tables: ["yourdata", "moredata"]}, dbReady);
 
-db.mydb.on("insert", (entry:any) => {
-  console.log("insert event:")
-  console.log(entry);
-  db.mydb.save();
+function dbReady(err, db) {
+  console.log("db ready.")
 
-  db.mydb.find({car:"BAKKIE"}, (err:Error, results:any) => {
-    console.log(results);
+  var count = 0;
+  var limit = 10000;
+  var data = [];
+  for (var a = 0; a <= limit; a++) {
+    data.push({foo: Math.random(), bar:"asdf"});
+  }
+
+  db.brands.insert(data, (err, res) => {
+    console.log(err);
+    console.log(res.inserted);
   })
-})
 
-db.mydb.insert({name:"KOOS", age:Math.round(Math.random()*120), car:"BAKKIE"})
+}
+
